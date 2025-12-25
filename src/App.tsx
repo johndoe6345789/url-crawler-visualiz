@@ -166,7 +166,7 @@ function App() {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <HeadersConfigPanel
-            headers={headers || DEFAULT_HEADERS}
+            headers={headers}
             onChange={(newHeaders) => setHeaders(newHeaders)}
           />
         </CollapsibleContent>
