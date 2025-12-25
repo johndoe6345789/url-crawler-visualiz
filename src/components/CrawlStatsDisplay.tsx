@@ -1,13 +1,17 @@
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { CrawlStats } from '@/lib/types'
+import { Button } from '@/components/ui/button'
+import { DownloadSimple } from '@phosphor-icons/react'
+import type { CrawlStats, URLNode } from '@/lib/types'
 
 interface CrawlStatsDisplayProps {
   stats: CrawlStats
   isActive: boolean
+  nodes: URLNode[]
+  onExport: () => void
 }
 
-export function CrawlStatsDisplay({ stats, isActive }: CrawlStatsDisplayProps) {
+export function CrawlStatsDisplay({ stats, isActive, nodes, onExport }: CrawlStatsDisplayProps) {
   const progress = stats.total > 0 
     ? ((stats.success + stats.error) / stats.total) * 100 
     : 0
@@ -15,13 +19,25 @@ export function CrawlStatsDisplay({ stats, isActive }: CrawlStatsDisplayProps) {
   return (
     <Card className="p-4">
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h3 className="text-sm font-semibold">Crawl Progress</h3>
-          {isActive && (
-            <Badge variant="outline" className="bg-primary/20 text-primary border-primary/40">
-              Active
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {isActive && (
+              <Badge variant="outline" className="bg-primary/20 text-primary border-primary/40">
+                Active
+              </Badge>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onExport}
+              disabled={nodes.length === 0}
+              className="gap-2"
+            >
+              <DownloadSimple size={16} weight="bold" />
+              Export JSON
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">

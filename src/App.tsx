@@ -97,6 +97,38 @@ function App() {
     setDetailsOpen(true)
   }
 
+  const handleExport = () => {
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      rootUrl: url,
+      stats,
+      nodes: nodesArray.map(node => ({
+        id: node.id,
+        url: node.url,
+        status: node.status,
+        depth: node.depth,
+        parentId: node.parentId,
+        data: node.data,
+        error: node.error,
+        responseTime: node.responseTime,
+        discoveredUrls: node.discoveredUrls,
+      })),
+      edges,
+    }
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const downloadUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = `crawl-results-${Date.now()}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(downloadUrl)
+
+    toast.success('Crawl results exported!')
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 flex flex-col">
       <div className="mb-6">
@@ -177,7 +209,12 @@ function App() {
 
       {nodesArray.length > 0 && (
         <div className="mb-4">
-          <CrawlStatsDisplay stats={stats} isActive={isCrawling} />
+          <CrawlStatsDisplay 
+            stats={stats} 
+            isActive={isCrawling}
+            nodes={nodesArray}
+            onExport={handleExport}
+          />
         </div>
       )}
 
