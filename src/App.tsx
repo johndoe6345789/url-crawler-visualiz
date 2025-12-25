@@ -1,14 +1,23 @@
 import { useState, useMemo } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { GraphVisualization } from '@/components/GraphVisualization'
 import { URLDetailsPanel } from '@/components/URLDetailsPanel'
 import { CrawlStatsDisplay } from '@/components/CrawlStatsDisplay'
-import { Globe, Graph, Clock } from '@phosphor-icons/react'
+import { HeadersConfigPanel } from '@/components/HeadersConfigPanel'
+import { Globe, Graph, Clock, CaretDown, Gear } from '@phosphor-icons/react'
 import { crawlUrl, isValidUrl } from '@/lib/crawler'
 import type { URLNode, URLEdge, CrawlStats } from '@/lib/types'
 import { toast } from 'sonner'
+
+const DEFAULT_HEADERS: Record<string, string> = {
+  'accept': 'application/json',
+  'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+  'content-type': 'application/json',
+}
 
 function App() {
   const [url, setUrl] = useState('')
@@ -16,6 +25,8 @@ function App() {
   const [isCrawling, setIsCrawling] = useState(false)
   const [selectedNode, setSelectedNode] = useState<URLNode | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [headersOpen, setHeadersOpen] = useState(false)
+  const [headers, setHeaders] = useKV<Record<string, string>>('crawler-headers', DEFAULT_HEADERS)
 
   const nodesArray = useMemo(() => Array.from(nodes.values()), [nodes])
 
@@ -71,7 +82,7 @@ function App() {
     }
 
     try {
-      await crawlUrl(url, 0, null, 3, visited, onNodeUpdate)
+      await crawlUrl(url, 0, null, 3, visited, onNodeUpdate, headers || DEFAULT_HEADERS)
       toast.success('Crawl completed!')
     } catch (error) {
       toast.error('An error occurred during crawling')
@@ -135,6 +146,31 @@ function App() {
           </Button>
         </div>
       </Card>
+
+      <Collapsible open={headersOpen} onOpenChange={setHeadersOpen} className="mb-4">
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-between gap-2 mb-3"
+          >
+            <span className="flex items-center gap-2">
+              <Gear size={18} weight="bold" />
+              Headers Configuration
+            </span>
+            <CaretDown
+              size={16}
+              weight="bold"
+              className={`transition-transform ${headersOpen ? 'rotate-180' : ''}`}
+            />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <HeadersConfigPanel
+            headers={headers || DEFAULT_HEADERS}
+            onChange={(newHeaders) => setHeaders(newHeaders)}
+          />
+        </CollapsibleContent>
+      </Collapsible>
 
       {nodesArray.length > 0 && (
         <div className="mb-4">

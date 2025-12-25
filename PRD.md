@@ -47,6 +47,13 @@ This is a focused tool with clear inputs (URL), processing (crawling/fetching), 
 - Progression: Crawl starts → Counter updates → Progress percentage → Complete/error states
 - Success criteria: Accurate counts; clear completion state
 
+**Headers Configuration Panel**
+- Functionality: Allow users to configure custom HTTP headers for API requests with add/edit/remove/reset capabilities
+- Purpose: Enable crawling of APIs that require authentication, specific content types, or custom headers
+- Trigger: User expands the headers configuration collapsible panel
+- Progression: Click configuration toggle → Panel expands → Add/edit/remove headers → Headers persist across sessions → Applied to all crawl requests
+- Success criteria: Headers are saved and persisted; applied correctly to all fetch requests; default headers can be restored
+
 ## Edge Case Handling
 
 - **Circular References**: Track visited URLs to prevent infinite loops
@@ -101,13 +108,15 @@ Animations should emphasize the discovery and connection aspects - nodes appeari
 
 - **Components**:
   - Input + Button: URL entry field with prominent "Crawl" button
-  - Card: Container for input area and progress stats
+  - Card: Container for input area, headers config, and progress stats
   - Badge: Status indicators (success, error, loading) on nodes and in lists
   - Sheet: Slide-out panel for URL details
   - ScrollArea: For JSON preview and discovered URLs list
-  - Separator: Dividing sections in the details panel
+  - Separator: Dividing sections in the details panel and headers config
   - Progress: Visual indicator for crawl completion percentage
   - Skeleton: Loading placeholders during initial render
+  - Collapsible: Expandable headers configuration section
+  - Label: Form labels for header inputs
 
 - **Customizations**:
   - Custom D3 force-directed graph component (not in shadcn)
@@ -129,6 +138,11 @@ Animations should emphasize the discovery and connection aspects - nodes appeari
   - Check: Successfully fetched
   - Clock: Loading/pending
   - ArrowsOut: Zoom controls
+  - Gear: Configuration/settings
+  - Plus: Add new header
+  - Trash: Remove header
+  - ArrowClockwise: Reset to defaults
+  - CaretDown: Collapsible indicators
 
 - **Spacing**:
   - Page padding: p-6 on desktop, p-4 on mobile

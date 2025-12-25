@@ -52,18 +52,23 @@ export function extractUrls(obj: any, baseUrl: string): string[] {
   return Array.from(urls)
 }
 
-export async function fetchUrl(url: string): Promise<{ data: any; responseTime: number }> {
+export async function fetchUrl(
+  url: string,
+  customHeaders?: Record<string, string>
+): Promise<{ data: any; responseTime: number }> {
   const startTime = performance.now()
   
   try {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
 
+    const headers = customHeaders || {
+      'Accept': 'application/json',
+    }
+
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers,
     })
 
     clearTimeout(timeoutId)
@@ -93,7 +98,8 @@ export async function crawlUrl(
   parentId: string | null,
   maxDepth: number,
   visited: Set<string>,
-  onNodeUpdate: (node: URLNode) => void
+  onNodeUpdate: (node: URLNode) => void,
+  customHeaders?: Record<string, string>
 ): Promise<void> {
   if (depth > maxDepth || visited.has(url)) {
     return
@@ -114,7 +120,7 @@ export async function crawlUrl(
   onNodeUpdate(node)
 
   try {
-    const { data, responseTime } = await fetchUrl(url)
+    const { data, responseTime } = await fetchUrl(url, customHeaders)
     const discoveredUrls = extractUrls(data, url)
 
     const updatedNode: URLNode = {
@@ -129,7 +135,7 @@ export async function crawlUrl(
 
     if (depth < maxDepth) {
       for (const discoveredUrl of discoveredUrls) {
-        await crawlUrl(discoveredUrl, depth + 1, nodeId, maxDepth, visited, onNodeUpdate)
+        await crawlUrl(discoveredUrl, depth + 1, nodeId, maxDepth, visited, onNodeUpdate, customHeaders)
       }
     }
   } catch (err: any) {
