@@ -27,6 +27,7 @@ function App() {
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [headersOpen, setHeadersOpen] = useState(false)
   const [headers, setHeaders] = useKV<Record<string, string>>('crawler-headers', DEFAULT_HEADERS)
+  const [includeCookies, setIncludeCookies] = useKV<boolean>('crawler-include-cookies', false)
 
   const nodesArray = useMemo(() => Array.from(nodes.values()), [nodes])
 
@@ -82,7 +83,7 @@ function App() {
     }
 
     try {
-      await crawlUrl(url, 0, null, 3, visited, onNodeUpdate, headers || DEFAULT_HEADERS)
+      await crawlUrl(url, 0, null, 3, visited, onNodeUpdate, headers || DEFAULT_HEADERS, includeCookies || false)
       toast.success('Crawl completed!')
     } catch (error) {
       toast.error('An error occurred during crawling')
@@ -166,8 +167,10 @@ function App() {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <HeadersConfigPanel
-            headers={headers}
+            headers={headers || DEFAULT_HEADERS}
             onChange={(newHeaders) => setHeaders(newHeaders)}
+            includeCookies={includeCookies || false}
+            onIncludeCookiesChange={(value) => setIncludeCookies(value)}
           />
         </CollapsibleContent>
       </Collapsible>

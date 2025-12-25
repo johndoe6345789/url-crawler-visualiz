@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, Trash, ArrowClockwise } from '@phosphor-icons/react'
 
 const DEFAULT_HEADERS: Record<string, string> = {
@@ -15,9 +16,16 @@ const DEFAULT_HEADERS: Record<string, string> = {
 interface HeadersConfigPanelProps {
   headers: Record<string, string>
   onChange: (headers: Record<string, string>) => void
+  includeCookies: boolean
+  onIncludeCookiesChange: (value: boolean) => void
 }
 
-export function HeadersConfigPanel({ headers, onChange }: HeadersConfigPanelProps) {
+export function HeadersConfigPanel({ 
+  headers, 
+  onChange, 
+  includeCookies, 
+  onIncludeCookiesChange 
+}: HeadersConfigPanelProps) {
   const [newKey, setNewKey] = useState('')
   const [newValue, setNewValue] = useState('')
 
@@ -68,6 +76,22 @@ export function HeadersConfigPanel({ headers, onChange }: HeadersConfigPanelProp
             <ArrowClockwise size={16} weight="bold" />
             Reset
           </Button>
+        </div>
+
+        <Separator />
+
+        <div className="flex items-center space-x-3 py-2">
+          <Checkbox
+            id="include-cookies"
+            checked={includeCookies}
+            onCheckedChange={(checked) => onIncludeCookiesChange(checked === true)}
+          />
+          <Label
+            htmlFor="include-cookies"
+            className="text-sm font-medium cursor-pointer"
+          >
+            Include cookies with requests
+          </Label>
         </div>
 
         <Separator />

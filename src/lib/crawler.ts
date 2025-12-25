@@ -54,7 +54,8 @@ export function extractUrls(obj: any, baseUrl: string): string[] {
 
 export async function fetchUrl(
   url: string,
-  customHeaders?: Record<string, string>
+  customHeaders?: Record<string, string>,
+  includeCookies?: boolean
 ): Promise<{ data: any; responseTime: number }> {
   const startTime = performance.now()
   
@@ -69,6 +70,7 @@ export async function fetchUrl(
     const response = await fetch(url, {
       signal: controller.signal,
       headers,
+      credentials: includeCookies ? 'include' : 'same-origin',
     })
 
     clearTimeout(timeoutId)
@@ -99,7 +101,8 @@ export async function crawlUrl(
   maxDepth: number,
   visited: Set<string>,
   onNodeUpdate: (node: URLNode) => void,
-  customHeaders?: Record<string, string>
+  customHeaders?: Record<string, string>,
+  includeCookies?: boolean
 ): Promise<void> {
   if (depth > maxDepth || visited.has(url)) {
     return
@@ -120,7 +123,7 @@ export async function crawlUrl(
   onNodeUpdate(node)
 
   try {
-    const { data, responseTime } = await fetchUrl(url, customHeaders)
+    const { data, responseTime } = await fetchUrl(url, customHeaders, includeCookies)
     const discoveredUrls = extractUrls(data, url)
 
     const updatedNode: URLNode = {
@@ -135,7 +138,7 @@ export async function crawlUrl(
 
     if (depth < maxDepth) {
       for (const discoveredUrl of discoveredUrls) {
-        await crawlUrl(discoveredUrl, depth + 1, nodeId, maxDepth, visited, onNodeUpdate, customHeaders)
+        await crawlUrl(discoveredUrl, depth + 1, nodeId, maxDepth, visited, onNodeUpdate, customHeaders, includeCookies)
       }
     }
   } catch (err: any) {
